@@ -27,7 +27,7 @@ require('packer').startup(function(use)
   use 'mattn/emmet-vim'
   use 'tpope/vim-surround'
   use 'windwp/nvim-autopairs'
-
+  use { "rose-pine/neovim", as = "rose-pine" }
   -- .NET Support
   use 'nvim-neotest/nvim-nio'
   use 'williamboman/mason.nvim'
@@ -36,14 +36,13 @@ require('packer').startup(function(use)
   use 'nvimtools/none-ls.nvim'
   use 'mfussenegger/nvim-dap'
   use 'rcarriga/nvim-dap-ui'
-
+  use { source = "rose-pine/neovim", as = "rose-pine" }
   if packer_bootstrap then
     require('packer').sync()
   end
 end)
 
 vim.cmd [[highlight Normal guibg=NONE]]
-
 -- Basic settings
 vim.opt.number = true
 vim.opt.relativenumber = true
@@ -84,17 +83,19 @@ cmp.setup({
       require('luasnip').lsp_expand(args.body)
     end,
   },
-  mapping = {
-    ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-    ['<C-f>'] = cmp.mapping.scroll_docs(4),
-    ['<C-Space>'] = cmp.mapping.complete(),
-    ['<C-e>'] = cmp.mapping.close(),
+     mapping = {
+    ['<Up>'] = cmp.mapping.select_prev_item(),
+    ['<Down>'] = cmp.mapping.select_next_item(),
     ['<CR>'] = cmp.mapping.confirm({ select = true }),
+    ['<Tab>'] = cmp.mapping.confirm({ select = true }),
+    ['<C-e>'] = cmp.mapping.close(),
   },
-  sources = {
+
+   sources = {
     { name = 'nvim_lsp' },
     { name = 'luasnip' },
   },
+
 })
 
 -- Harpoon setup
@@ -131,6 +132,19 @@ require("mason-null-ls").setup({
   automatic_installation = true,
 })
 
+require("rose-pine").setup({
+  variant = "moon", -- "main", "moon", or "dawn"
+  dark_variant = "main",
+  bold_vert_split = false,
+  dim_nc_background = true,
+  disable_background = true,
+  disable_float_background = true,
+  disable_italics = false,
+})
+
+
+vim.cmd("colorscheme rose-pine")
+
 -- DAP for .NET Core
 local dap = require("dap")
 dap.adapters.coreclr = {
@@ -156,5 +170,6 @@ vim.keymap.set("n", "<F10>", require'dap'.step_over)
 vim.keymap.set("n", "<F11>", require'dap'.step_into)
 vim.keymap.set("n", "<F12>", require'dap'.step_out)
 vim.keymap.set("n", "<leader>du", require'dapui'.toggle)
+
 
 
