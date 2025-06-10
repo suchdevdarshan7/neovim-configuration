@@ -15,6 +15,15 @@ local packer_bootstrap = ensure_packer()
 -- Plugin manager setup
 require('packer').startup(function(use)
   use 'wbthomason/packer.nvim'
+   use {
+    'lewis6991/gitsigns.nvim',
+    requires = { 'nvim-lua/plenary.nvim' },
+    config = function()
+      require('gitsigns').setup({
+        current_line_blame = true, -- optional setting
+      })
+    end
+  }
   use 'nvim-lua/plenary.nvim'
   use 'nvim-telescope/telescope.nvim'
   use 'ThePrimeagen/harpoon'
@@ -163,13 +172,43 @@ dap.configurations.cs = {
   },
 }
 
--- DAP UI
+vim.diagnostic.config({
+  virtual_text = false,
+  signs = true,
+  underline = true,
+  update_in_insert = true, -- update diagnostics while typing
+  severity_sort = true,
+  float = {
+    border = "rounded",
+    source = "always",
+    focusable = false,
+  },
+})
+
+-- Function to show diagnostics automatically
+local function show_diagnostics()
+  vim.defer_fn(function()
+    vim.diagnostic.open_float(nil, { focusable = false })
+  end, 100) -- slight delay to avoid flicker
+end
+
+-- Auto open diagnostic float when entering insert mode
+vim.api.nvim_create_autocmd("InsertEnter", {
+  callback = show_diagnostics,
+})
+
+-- Also auto show diagnostic float when holding the cursor (normal mode)
+vim.api.nvim_create_autocmd("CursorHold", {
+  callback = show_diagnostics,
+})
+
+
+
 require("dapui").setup()
 vim.keymap.set("n", "<F5>", require'dap'.continue)
 vim.keymap.set("n", "<F10>", require'dap'.step_over)
 vim.keymap.set("n", "<F11>", require'dap'.step_into)
 vim.keymap.set("n", "<F12>", require'dap'.step_out)
 vim.keymap.set("n", "<leader>du", require'dapui'.toggle)
-
 
 
